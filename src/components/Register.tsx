@@ -3,6 +3,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from '../contexts/AuthContext';
+import { createUserProfile } from '../lib/userService';
 
 function Register() {
   const [email, setEmail] = useState("");
@@ -37,7 +38,9 @@ function Register() {
     setLoading(true);
 
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      // Create user profile in Firestore
+      await createUserProfile(userCredential.user);
       navigate("/chat/1");
     } catch (firebaseError: unknown) {
       const errorMessage = firebaseError instanceof Error ? firebaseError.message : 'An error occurred';

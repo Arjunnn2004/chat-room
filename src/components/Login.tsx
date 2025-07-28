@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../lib/firebase";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from '../contexts/AuthContext';
+import { createUserProfile } from '../lib/userService';
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -25,7 +26,9 @@ function Login() {
     setLoading(true);
 
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      // Create/update user profile
+      await createUserProfile(userCredential.user);
       navigate("/chat/1");
     } catch (firebaseError: unknown) {
       const errorMessage = firebaseError instanceof Error ? firebaseError.message : 'An error occurred';
